@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>后台 · 时礼的小站</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FDFCF8; --fg:#2C2C24; --primary:#5D7052; --primary-fg:#F3F4F1;
+    --secondary:#C18C5D; --muted:#F0EBE5; --muted-fg:#78786C; --border:#DED8CF;
+    --card:#FEFEFA; --soft:0 4px 20px -2px rgba(93,112,82,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Nunito',system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6}
+  h1,h2,h3{font-family:'Fraunces',serif}
+  .wrap{max-width:48rem;margin:0 auto;padding:2rem 1.2rem 5rem}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+  .top h1{font-size:1.8rem;font-weight:800}
+  .top a{color:var(--primary);font-weight:700;text-decoration:none;font-size:.92rem}
+
+  .card{background:var(--card);border:1px solid rgba(222,216,207,.6);border-radius:1.5rem;padding:1.5rem;box-shadow:var(--soft);margin-bottom:1.5rem}
+  .card > h2{font-size:1.3rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+
+  label{display:block;font-weight:700;font-size:.9rem;margin:.9rem 0 .35rem}
+  input[type=text],input[type=date],textarea,select,input[list]{
+    width:100%;border:1px solid var(--border);border-radius:.9rem;background:rgba(255,255,255,.7);
+    padding:.7rem .9rem;font-family:'Nunito',sans-serif;font-size:.95rem;color:var(--fg);outline:none;transition:.2s
+  }
+  input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(93,112,82,.15)}
+  textarea{resize:vertical;min-height:4.5rem}
+  .hint{color:var(--muted-fg);font-size:.82rem;margin-top:.3rem}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:none;cursor:pointer;
+    font-family:'Nunito',sans-serif;font-weight:700;border-radius:9999px;transition:.25s;font-size:.95rem}
+  .btn:active{transform:scale(.96)}
+  .btn-primary{background:var(--primary);color:var(--primary-fg);height:2.9rem;padding:0 1.8rem}
+  .btn-primary:hover{transform:scale(1.04)}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .btn-soft{background:var(--muted);color:var(--fg);height:2.4rem;padding:0 1rem;font-size:.88rem}
+  .btn-soft:hover{background:rgba(93,112,82,.12);color:var(--primary)}
+  .btn-danger{background:transparent;color:#A85448;border:1px solid #A85448;height:2.1rem;padding:0 .9rem;font-size:.82rem}
+  .btn-danger:hover{background:rgba(168,84,72,.08)}
+
+  /* 标签页 */
+  .tabs{display:flex;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap}
+  .tab{border:1px solid var(--border);background:rgba(255,255,255,.6);color:var(--fg);font-weight:700;
+    padding:.5rem 1.1rem;border-radius:9999px;cursor:pointer;font-size:.9rem;transition:.2s}
+  .tab.active{background:var(--primary);color:var(--primary-fg);border-color:var(--primary)}
+  .panel{display:none}
+  .panel.active{display:block}
+
+  /* 正文内容块 */
+  .blocks{display:flex;flex-direction:column;gap:.8rem;margin-top:.5rem}
+  .block{border:1px solid var(--border);border-radius:1rem;padding:.9rem;background:rgba(255,255,255,.5);position:relative}
+  .block .bhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+  .block .btag{font-size:.78rem;font-weight:800;color:var(--primary);background:rgba(93,112,82,.1);padding:.15rem .6rem;border-radius:9999px}
+  .block .bctrl{display:flex;gap:.3rem}
+  .icon-btn{width:1.9rem;height:1.9rem;border-radius:.6rem;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:.9rem;line-height:1;color:var(--fg)}
+  .icon-btn:hover{background:var(--muted)}
+  .add-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
+  .preview{max-width:160px;border-radius:.6rem;margin-top:.5rem;border:2px solid #fff;box-shadow:var(--soft)}
+
+  /* 提示条 */
+  .toast{position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%) translateY(2rem);opacity:0;
+    background:var(--primary);color:#fff;padding:.8rem 1.4rem;border-radius:9999px;font-weight:700;
+    box-shadow:var(--soft);transition:.35s;z-index:50;max-width:90vw;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.err{background:#A85448}
+
+  .manage-item{display:flex;align-items:center;gap:.8rem;padding:.7rem .2rem;border-bottom:1px solid rgba(222,216,207,.6)}
+  .manage-item .mtitle{flex:1;font-weight:600;font-size:.95rem}
+  .manage-item .mmeta{color:var(--muted-fg);font-size:.8rem;flex-shrink:0}
+  .muted-line{color:var(--muted-fg);font-size:.9rem;padding:.6rem 0}
+  .status-dot{display:inline-block;width:.6rem;height:.6rem;border-radius:9999px;background:#A85448;margin-right:.2rem}
+  .status-dot.ok{background:var(--primary)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <h1>🌿 内容后台</h1>
+    <a href="index.html" target="_blank">查看网站 ↗</a>
+  </div>
+
+  <!-- 钥匙设置 -->
+  <div class="card">
+    <h2>① GitHub 钥匙</h2>
+    <p class="hint" style="margin-top:0">
+      第一次使用，把你的 GitHub 令牌粘进来保存（只存在这台电脑的浏览器里）。不知道怎么弄？
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" style="color:var(--primary);font-weight:700">点这里生成 →</a>
+    </p>
+    <label>访问令牌 (Token)</label>
+    <input type="text" id="token" placeholder="粘贴 github_pat_... 或 ghp_..." autocomplete="off" />
+    <div class="add-row">
+      <button class="btn btn-soft" onclick="saveToken()">保存钥匙</button>
+      <span id="tokenStatus" class="muted-line"><span class="status-dot"></span>未连接</span>
+    </div>
+  </div>
+
+  <!-- 标签页 -->
+  <div class="tabs">
+    <button class="tab active" data-tab="blog">✍️ 写博客</button>
+    <button class="tab" data-tab="proj">🎒 加作品</button>
+    <button class="tab" data-tab="manage">🗂 管理内容</button>
+  </div>
+
+  <!-- 写博客 -->
+  <div class="panel active" id="panel-blog">
+    <div class="card">
+      <h2>写一篇博客</h2>
+
+      <label>标题</label>
+      <input type="text" id="b-title" placeholder="文章标题" />
+
+      <label>分类</label>
+      <input list="catList" id="b-cat" placeholder="选择或输入新分类" />
+      <datalist id="catList"></datalist>
+
+      <label>发布日期</label>
+      <input type="date" id="b-date" />
+
+      <label>封面图（可选）</label>
+      <input type="file" id="b-cover" accept="image/*" />
+      <img id="b-cover-preview" class="preview" style="display:none" />
+
+      <label>正文</label>
+      <p class="hint" style="margin-top:0">用下面的按钮添加内容，可上下调整顺序。</p>
+      <div class="blocks" id="b-blocks"></div>
+      <div class="add-row">
+        <button class="btn btn-soft" onclick="addBlock('text')">＋ 文字段落</button>
+        <button class="btn btn-soft" onclick="addBlock('head')">＋ 小标题</button>
+        <button class="btn btn-soft" onclick="addBlock('img')">＋ 图片</button>
+      </div>
+
+      <div class="add-row" style="margin-top:1.4rem">
+        <button class="btn btn-primary" id="b-submit" onclick="publishPost()">发布文章</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 加作品 -->
+  <div class="panel" id="panel-proj">
+    <div class="card">
+      <h2>添加一个作品</h2>
+      <label>作品名称</label>
+      <input type="text" id="p-title" placeholder="比如：个人网站" />
+      <label>一句简介</label>
+      <textarea id="p-desc" placeholder="简单描述这个作品"></textarea>
+      <label>标签（用逗号隔开）</label>
+      <input type="text" id="p-tags" placeholder="AI 编程, 网页设计" />
+      <label>链接</label>
+      <input type="text" id="p-link" placeholder="https://...（没有就留空，显示“敬请期待”）" />
+      <div class="add-row" style="margin-top:1.4rem">
+        <button class="btn btn-primary" id="p-submit" onclick="publishProject()">发布作品</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理内容 -->
+  <div class="panel" id="panel-manage">
+    <div class="card">
+      <h2>已发布的文章</h2>
+      <div id="manage-posts"><p class="muted-line">先在上方保存钥匙以加载内容…</p></div>
+    </div>
+    <div class="card">
+      <h2>已发布的作品</h2>
+      <div id="manage-projs"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ===== 基本配置 ===== */
+  const OWNER = "1250003213sl-dot";
+  const REPO  = "personal-site";
+  const BRANCH= "main";
+  const TOKEN_KEY = "site_admin_token";
+
+  let token = localStorage.getItem(TOKEN_KEY) || "";
+
+  /* ===== 工具函数 ===== */
+  const $ = id => document.getElementById(id);
+  function toast(msg, isErr){
+    const t = $("toast"); t.textContent = msg;
+    t.className = "toast show" + (isErr ? " err" : "");
+    setTimeout(()=> t.className = "toast" + (isErr?" err":""), 3200);
+  }
+  function utf8ToB64(s){ return btoa(unescape(encodeURIComponent(s))); }
+  function b64ToUtf8(b){ return decodeURIComponent(escape(atob(b.replace(/\n/g,"")))); }
+  function fileToB64(file){
+    return new Promise((res,rej)=>{
+      const r = new FileReader();
+      r.onload = ()=> res(r.result.split(",")[1]);
+      r.onerror = rej; r.readAsDataURL(file);
+    });
+  }
+  function api(path){ return `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`; }
+  function headers(){ return { "Authorization":"Bearer "+token, "Accept":"application/vnd.github+json" }; }
+
+  /* ===== 钥匙 ===== */
+  function saveToken(){
+    token = $("token").value.trim();
+    localStorage.setItem(TOKEN_KEY, token);
+    checkToken();
+  }
+  async function checkToken(){
+    const s = $("tokenStatus");
+    if(!token){ s.innerHTML = '<span class="status-dot"></span>未连接'; return; }
+    try{
+      const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}`, {headers:headers()});
+      if(r.ok){ s.innerHTML = '<span class="status-dot ok"></span>已连接 ✓'; loadData(); }
+      else { s.innerHTML = '<span class="status-dot"></span>钥匙无效，请检查'; }
+    }catch(e){ s.innerHTML = '<span class="status-dot"></span>连接失败'; }
+  }
+
+  /* ===== 读取当前数据（含 sha） ===== */
+  async function fetchData(){
+    const r = await fetch(api("data.js")+"?ref="+BRANCH, {headers:headers()});
+    if(!r.ok) throw new Error("读取 data.js 失败");
+    const j = await r.json();
+    const text = b64ToUtf8(j.content);
+    const fake = {};
+    new Function("window", text)(fake);   // 安全地取出 SITE_DATA 对象
+    const data = fake.SITE_DATA || {categories:[],posts:[],projects:[]};
+    data.categories = data.categories || [];
+    data.posts = data.posts || [];
+    data.projects = data.projects || [];
+    return { data, sha:j.sha };
+  }
+
+  /* ===== 写回数据 ===== */
+  async function saveData(data, sha, message){
+    const header = "/* 由后台 admin.html 自动生成，请勿手动修改 */\n";
+    const body = "window.SITE_DATA = " + JSON.stringify(data, null, 2) + ";\n";
+    const r = await fetch(api("data.js"), {
+      method:"PUT", headers:headers(),
+      body: JSON.stringify({ message, content: utf8ToB64(header+body), sha, branch:BRANCH })
+    });
+    if(!r.ok){ const e = await r.json(); throw new Error(e.message || "保存失败"); }
+  }
+
+  /* ===== 上传图片，返回文件名 ===== */
+  async function uploadImage(file){
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const name = `images/img-${Date.now()}-${Math.floor(Math.random()*1000)}.${ext}`;
+    const content = await fileToB64(file);
+    const r = await fetch(api(name), {
+      method:"PUT", headers:headers(),
+      body: JSON.stringify({ message:"上传图片 "+name, content, branch:BRANCH })
+    });
+    if(!r.ok){ const e = await r.json(); throw new Error(e.message || "图片上传失败"); }
+    return name;
+  }
+
+  /* ===== 加载分类与管理列表 ===== */
+  async function loadData(){
+    try{
+      const { data } = await fetchData();
+      // 分类下拉
+      $("catList").innerHTML = data.categories.map(c=>`<option value="${c}">`).join("");
+      // 管理列表
+      renderManage(data);
+    }catch(e){ /* 忽略 */ }
+  }
+
+  function renderManage(data){
+    const posts = [...data.posts].sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+    $("manage-posts").innerHTML = posts.length ? posts.map(p=>`
+      <div class="manage-item">
+        <span class="mtitle">${esc(p.title)}</span>
+        <span class="mmeta">${esc(p.date)} · ${esc(p.cat)}</span>
+        <button class="btn btn-danger" onclick="delPost('${esc(p.title)}','${esc(p.date)}')">删除</button>
+      </div>`).join("") : '<p class="muted-line">还没有文章</p>';
+    $("manage-projs").innerHTML = data.projects.length ? data.projects.map((p,i)=>`
+      <div class="manage-item">
+        <span class="mtitle">${esc(p.title)}</span>
+        <button class="btn btn-danger" onclick="delProj(${i})">删除</button>
+      </div>`).join("") : '<p class="muted-line">还没有作品</p>';
+  }
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/'/g,"&#39;"); }
+
+  /* ===== 标签页切换 ===== */
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.onclick = ()=>{
+      document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+      t.classList.add("active");
+      $("panel-"+t.dataset.tab).classList.add("active");
+    };
+  });
+
+  /* ===== 正文内容块 ===== */
+  function addBlock(type){
+    const wrap = document.createElement("div");
+    wrap.className = "block"; wrap.dataset.type = type;
+    const label = type==="text" ? "文字段落" : type==="head" ? "小标题" : "图片";
+    let inner = `<div class="bhead"><span class="btag">${label}</span>
+      <div class="bctrl">
+        <button class="icon-btn" onclick="moveBlock(this,-1)" title="上移">↑</button>
+        <button class="icon-btn" onclick="moveBlock(this,1)" title="下移">↓</button>
+        <button class="icon-btn" onclick="this.closest('.block').remove()" title="删除">✕</button>
+      </div></div>`;
+    if(type==="text") inner += `<textarea placeholder="输入一段正文…"></textarea>`;
+    else if(type==="head") inner += `<input type="text" placeholder="输入小标题…" />`;
+    else inner += `<input type="file" accept="image/*" onchange="previewBlockImg(this)" />
+      <img class="preview" style="display:none" />
+      <input type="text" placeholder="图片说明（可不填）" style="margin-top:.5rem" />`;
+    wrap.innerHTML = inner;
+    $("b-blocks").appendChild(wrap);
+  }
+  function moveBlock(btn, dir){
+    const el = btn.closest(".block");
+    if(dir<0 && el.previousElementSibling) el.parentNode.insertBefore(el, el.previousElementSibling);
+    if(dir>0 && el.nextElementSibling) el.parentNode.insertBefore(el.nextElementSibling, el);
+  }
+  function previewBlockImg(input){
+    const img = input.parentNode.querySelector("img.preview");
+    if(input.files[0]){ img.src = URL.createObjectURL(input.files[0]); img.style.display="block"; }
+  }
+  $("b-cover").onchange = function(){
+    const img = $("b-cover-preview");
+    if(this.files[0]){ img.src = URL.createObjectURL(this.files[0]); img.style.display="block"; }
+  };
+
+  /* ===== 发布文章 ===== */
+  async function publishPost(){
+    if(!token) return toast("请先保存 GitHub 钥匙", true);
+    const title = $("b-title").value.trim();
+    const cat = $("b-cat").value.trim();
+    const dateRaw = $("b-date").value; // yyyy-mm-dd
+    if(!title) return toast("请填写标题", true);
+    if(!cat) return toast("请选择或填写分类", true);
+    if(!dateRaw) return toast("请选择发布日期", true);
+
+    const btn = $("b-submit"); btn.disabled = true; btn.textContent = "发布中…";
+    try{
+      const { data, sha } = await fetchData();
+      const date = dateRaw.replace(/-/g,".");
+
+      // 封面
+      let cover = "";
+      if($("b-cover").files[0]) cover = await uploadImage($("b-cover").files[0]);
+
+      // 正文块
+      const content = []; let charCount = title.length;
+      for(const el of $("b-blocks").children){
+        const type = el.dataset.type;
+        if(type==="text"){
+          const v = el.querySelector("textarea").value.trim();
+          if(v){ content.push(v); charCount += v.length; }
+        }else if(type==="head"){
+          const v = el.querySelector("input").value.trim();
+          if(v){ content.push({h:v}); charCount += v.length; }
+        }else if(type==="img"){
+          const f = el.querySelector('input[type=file]').files[0];
+          const cap = el.querySelector('input[type=text]').value.trim();
+          if(f){ const name = await uploadImage(f); content.push(cap?{img:name,cap}:{img:name}); }
+        }
+      }
+      if(content.length===0) content.push("（正文待补充）");
+
+      const min = Math.max(1, Math.round(charCount/400));
+      if(!data.categories.includes(cat)) data.categories.push(cat);
+      data.posts.push({ date, cat, title, min, cover, content });
+
+      await saveData(data, sha, "发布文章："+title);
+      toast("发布成功！约 1 分钟后线上更新 🌿");
+      // 重置
+      $("b-title").value=""; $("b-cat").value=""; $("b-date").value="";
+      $("b-cover").value=""; $("b-cover-preview").style.display="none"; $("b-blocks").innerHTML="";
+      loadData();
+    }catch(e){ toast("出错了："+e.message, true); }
+    finally{ btn.disabled=false; btn.textContent="发布文章"; }
+  }
+
+  /* ===== 发布作品 ===== */
+  async function publishProject(){
+    if(!token) return toast("请先保存 GitHub 钥匙", true);
+    const title = $("p-title").value.trim();
+    if(!title) return toast("请填写作品名称", true);
+    const desc = $("p-desc").value.trim();
+    const tags = $("p-tags").value.split(/[,，]/).map(t=>t.trim()).filter(Boolean);
+    const link = $("p-link").value.trim() || "#";
+
+    const btn = $("p-submit"); btn.disabled=true; btn.textContent="发布中…";
+    try{
+      const { data, sha } = await fetchData();
+      data.projects.push({ title, desc, tags, link });
+      await saveData(data, sha, "添加作品："+title);
+      toast("作品已发布！约 1 分钟后线上更新 🎒");
+      $("p-title").value=""; $("p-desc").value=""; $("p-tags").value=""; $("p-link").value="";
+      loadData();
+    }catch(e){ toast("出错了："+e.message, true); }
+    finally{ btn.disabled=false; btn.textContent="发布作品"; }
+  }
+
+  /* ===== 删除 ===== */
+  async function delPost(title, date){
+    if(!confirm(`确定删除文章「${title}」？`)) return;
+    try{
+      const { data, sha } = await fetchData();
+      data.posts = data.posts.filter(p=> !(p.title===title && p.date===date));
+      await saveData(data, sha, "删除文章："+title);
+      toast("已删除，约 1 分钟后线上更新");
+      loadData();
+    }catch(e){ toast("出错了："+e.message, true); }
+  }
+  async function delProj(index){
+    try{
+      const { data, sha } = await fetchData();
+      if(!confirm(`确定删除作品「${data.projects[index]?.title||""}」？`)) return;
+      data.projects.splice(index,1);
+      await saveData(data, sha, "删除作品");
+      toast("已删除，约 1 分钟后线上更新");
+      loadData();
+    }catch(e){ toast("出错了："+e.message, true); }
+  }
+
+  /* ===== 启动 ===== */
+  if(token){ $("token").value = token; checkToken(); }
+  // 默认日期填今天
+  $("b-date").value = new Date().toISOString().slice(0,10);
+</script>
+</body>
+</html>
