@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>时礼 · AI 成长</title>
+
+<!-- 字体：Fraunces（标题，老式衬线的温暖感）+ Nunito（正文，圆润终端） -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  /* ===== 设计变量：取自森林、陶土、未漂白的纸 ===== */
+  :root {
+    --background: #FDFCF8;          /* 米白 · 宣纸 */
+    --foreground: #2C2C24;          /* 深炭 · 腐殖土 */
+    --primary: #5D7052;             /* 苔藓绿 */
+    --primary-fg: #F3F4F1;          /* 淡雾白 */
+    --secondary: #C18C5D;           /* 陶土橙 */
+    --accent: #E6DCCD;              /* 沙米 */
+    --muted: #F0EBE5;               /* 石灰 */
+    --muted-fg: #78786C;            /* 枯草 */
+    --border: #DED8CF;              /* 原木 */
+    --card: #FEFEFA;                /* 卡片底 */
+    --shadow-soft: 0 4px 20px -2px rgba(93,112,82,0.15);   /* 苔绿柔影 */
+    --shadow-float: 0 10px 40px -10px rgba(193,140,93,0.2); /* 陶土柔影 */
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Nunito', system-ui, sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  /* ===== 全局纸张颗粒质感：固定噪点叠加层，正片叠底，极低不透明度 ===== */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 700; line-height: 1.1; }
+
+  .wrap { max-width: 80rem; margin: 0 auto; padding: 0 1rem; }
+  @media (min-width: 640px) { .wrap { padding: 0 1.5rem; } }
+  @media (min-width: 1024px) { .wrap { padding: 0 2rem; } }
+
+  /* ===== 悬浮磨砂玻璃胶囊导航 ===== */
+  .nav-outer { position: sticky; top: 1rem; z-index: 50; padding: 0 1rem; }
+  .nav {
+    max-width: 64rem; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; padding: 0.6rem 0.6rem 0.6rem 0.9rem;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(222,216,207,0.6);
+    border-radius: 9999px;
+    box-shadow: var(--shadow-soft);
+  }
+  .brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: var(--foreground); }
+  .brand .logo {
+    width: 2.4rem; height: 2.4rem; border-radius: 9999px;
+    background: var(--primary); color: #fff;
+    display: grid; place-items: center;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.3s ease;
+  }
+  .brand .logo svg { width: 1.3rem; height: 1.3rem; }
+  .brand:hover .logo { transform: rotate(-8deg) scale(1.05); }
+
+  .nav-links { display: none; gap: 0.3rem; align-items: center; }
+  @media (min-width: 768px) { .nav-links { display: flex; } }
+  .nav-links a {
+    text-decoration: none; color: var(--foreground);
+    font-weight: 600; font-size: 0.9rem;
+    padding: 0.5rem 0.95rem; border-radius: 9999px;
+    transition: all 0.3s ease;
+  }
+  .nav-links a:hover { background: rgba(93,112,82,0.1); color: var(--primary); }
+
+  /* 通用药丸按钮 */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    border-radius: 9999px; cursor: pointer;
+    text-decoration: none; border: none;
+    transition: all 0.3s ease; white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.95); }
+  .btn-primary {
+    background: var(--primary); color: var(--primary-fg);
+    height: 3rem; padding: 0 2rem; font-size: 1rem;
+    box-shadow: 0 4px 20px -2px rgba(93,112,82,0.25);
+  }
+  .btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 24px -4px rgba(93,112,82,0.35); }
+  .btn-outline {
+    background: transparent; color: var(--secondary);
+    border: 2px solid var(--secondary);
+    height: 3rem; padding: 0 2rem; font-size: 1rem;
+  }
+  .btn-outline:hover { transform: scale(1.05); background: rgba(193,140,93,0.08); }
+  .nav .btn-primary { height: 2.6rem; padding: 0 1.4rem; font-size: 0.9rem; }
+  .nav-cta { display: none; }
+  @media (min-width: 768px) { .nav-cta { display: inline-flex; } }
+
+  /* ===== 首屏 Hero ===== */
+  .hero { position: relative; padding: 5rem 0 6rem; overflow: hidden; }
+  @media (min-width: 1024px) { .hero { padding: 7rem 0 8rem; } }
+
+  /* 背景模糊有机色块 */
+  .blob { position: absolute; filter: blur(60px); z-index: 0; pointer-events: none; }
+  .blob-1 {
+    width: 30rem; height: 30rem; top: -6rem; right: -8rem;
+    background: rgba(93,112,82,0.18);
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  .blob-2 {
+    width: 26rem; height: 26rem; bottom: -8rem; left: -6rem;
+    background: rgba(193,140,93,0.16);
+    border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%;
+  }
+
+  .hero-grid {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center;
+  }
+  @media (min-width: 1024px) { .hero-grid { grid-template-columns: 1.1fr 0.9fr; gap: 4rem; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(93,112,82,0.1); color: var(--primary);
+    font-weight: 700; font-size: 0.85rem;
+    padding: 0.4rem 1rem; border-radius: 9999px; margin-bottom: 1.5rem;
+  }
+  .eyebrow .dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: var(--primary); }
+
+  .hero h1 { font-size: 3rem; font-weight: 800; letter-spacing: -0.01em; }
+  @media (min-width: 768px) { .hero h1 { font-size: 4.2rem; } }
+  .hero h1 .accent { color: var(--primary); }
+
+  .keyword {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 600;
+    color: var(--secondary); font-size: 1.5rem; margin: 1.2rem 0 0;
+  }
+  @media (min-width: 768px) { .keyword { font-size: 1.9rem; } }
+
+  .hero p.lead {
+    color: var(--muted-fg); font-size: 1.1rem; max-width: 34rem;
+    margin: 1.5rem 0 2.2rem;
+  }
+
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+  /* 水滴形头像框 */
+  .avatar-wrap { position: relative; display: grid; place-items: center; }
+  .avatar {
+    width: 22rem; height: 22rem; max-width: 80vw; max-height: 80vw;
+    background: linear-gradient(145deg, var(--accent), var(--muted));
+    border: 4px solid #fff;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    box-shadow: var(--shadow-float);
+    display: grid; place-items: center;
+    transition: all 0.5s ease;
+    overflow: hidden;
+  }
+  .avatar:hover { transform: translateY(-6px) rotate(-2deg); }
+  .avatar { position: relative; }
+  .avatar .placeholder {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 5rem; color: var(--primary);
+  }
+  /* 照片：铺满水滴框，盖住占位字 */
+  .avatar img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+  }
+
+  /* 滚动提示 */
+  .scroll-hint {
+    text-align: center; color: var(--muted-fg);
+    font-size: 0.85rem; margin-top: 4rem; position: relative; z-index: 1;
+  }
+
+  /* ===== 通用区块 ===== */
+  .section { padding: 5rem 0; position: relative; }
+  @media (min-width: 1024px) { .section { padding: 7rem 0; } }
+  .section--stone { background: rgba(240,235,229,0.5); }
+
+  .section-head { max-width: 38rem; margin-bottom: 3rem; }
+  .section-tag {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    color: var(--secondary); font-weight: 700; font-size: 0.85rem;
+    letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.8rem;
+  }
+  .section-tag .line { width: 1.8rem; height: 2px; background: var(--secondary); border-radius: 2px; }
+  .section-head h2 { font-size: 2.4rem; font-weight: 800; }
+  @media (min-width: 768px) { .section-head h2 { font-size: 3rem; } }
+
+  /* 关于我布局 */
+  .about-grid { display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center; }
+  @media (min-width: 1024px) { .about-grid { grid-template-columns: 1fr 1fr; gap: 4rem; } }
+  .about-text p { color: var(--foreground); font-size: 1.3rem; line-height: 1.85; margin-bottom: 1.8rem; }
+  .about-text p:last-child { margin-bottom: 0; }
+  .about-text p.soft { color: var(--muted-fg); font-size: 1.18rem; }
+  .about-text strong { color: var(--primary); font-weight: 800; }
+
+  /* 角色卡片：体现“一个人=一支团队” */
+  .role-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .role-card {
+    background: var(--card);
+    border: 1px solid rgba(222,216,207,0.5);
+    border-radius: 2rem;
+    padding: 1.6rem;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
+  }
+  .role-card:nth-child(1) { border-radius: 2rem 2rem 2rem 3.5rem; }
+  .role-card:nth-child(2) { border-radius: 2rem 3.5rem 2rem 2rem; }
+  .role-card:nth-child(3) { border-radius: 3.5rem 2rem 2rem 2rem; }
+  .role-card:nth-child(4) { border-radius: 2rem 2rem 3.5rem 2rem; }
+  .role-card:hover { transform: translateY(-6px) rotate(-1deg); box-shadow: 0 20px 40px -10px rgba(93,112,82,0.18); }
+  .role-card .ic {
+    width: 3rem; height: 3rem; border-radius: 1rem;
+    background: rgba(93,112,82,0.08);
+    display: grid; place-items: center;
+    margin-bottom: 0.9rem; transition: all 0.3s ease;
+    color: var(--primary);
+  }
+  .role-card .ic svg { width: 1.5rem; height: 1.5rem; }
+  .role-card:hover .ic { background: var(--primary); color: #fff; }
+  .role-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .role-card p { color: var(--muted-fg); font-size: 0.92rem; }
+
+  /* ===== 技能 ===== */
+  .skill-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+  @media (min-width: 768px) { .skill-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .skill-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; } }
+
+  .skill-card {
+    background: var(--card);
+    border: 1px solid rgba(222,216,207,0.5);
+    border-radius: 2rem;
+    padding: 2rem;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
+  }
+  .skill-card:nth-child(odd) { border-radius: 2.5rem 2rem 2rem 2rem; }
+  .skill-card:nth-child(even) { border-radius: 2rem 2.5rem 2rem 2rem; }
+  .skill-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px -10px rgba(93,112,82,0.15); }
+
+  .skill-card .head { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.3rem; }
+  .skill-card .ic {
+    width: 2.8rem; height: 2.8rem; border-radius: 0.9rem;
+    background: rgba(93,112,82,0.08); color: var(--primary);
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .skill-card .ic svg { width: 1.4rem; height: 1.4rem; }
+  .skill-card h3 { font-size: 1.2rem; font-weight: 700; }
+
+  .pills { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .pill {
+    background: var(--muted); color: #4A4A40;
+    border: 1px solid rgba(222,216,207,0.6);
+    border-radius: 9999px;
+    padding: 0.35rem 0.85rem; font-size: 0.82rem; font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  /* ===== 个人博客（文章列表）===== */
+  .section--sand { background: rgba(230,220,205,0.35); }
+  .blog-sub { color: var(--muted-fg); font-size: 1.05rem; margin-top: 0.6rem; }
+
+  /* 搜索 + 分类筛选 */
+  .blog-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin: 2rem 0 1rem; }
+  .blog-search { position: relative; flex: 1; min-width: 16rem; }
+  .blog-search svg {
+    position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%);
+    width: 1.1rem; height: 1.1rem; color: var(--muted-fg);
+  }
+  .blog-search input {
+    width: 100%; height: 3rem; padding: 0 1.2rem 0 2.8rem;
+    border-radius: 9999px; border: 1px solid var(--border);
+    background: rgba(255,255,255,0.6); color: var(--foreground);
+    font-family: 'Nunito', sans-serif; font-size: 0.95rem;
+    outline: none; transition: all 0.3s ease;
+  }
+  .blog-search input::placeholder { color: var(--muted-fg); }
+  .blog-search input:focus { box-shadow: 0 0 0 3px rgba(93,112,82,0.18); border-color: var(--primary); }
+
+  .blog-cats { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .cat-btn {
+    border: 1px solid var(--border); background: rgba(255,255,255,0.6);
+    color: var(--foreground); font-weight: 700; font-size: 0.88rem;
+    padding: 0.5rem 1rem; border-radius: 9999px; cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .cat-btn:hover { background: rgba(93,112,82,0.1); color: var(--primary); }
+  .cat-btn.active { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+
+  .blog-count { color: var(--muted-fg); font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .blog-count b { color: var(--primary); }
+
+  /* 年份分组 */
+  .year-group { margin-bottom: 2.5rem; }
+  .year-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding-bottom: 0.8rem; margin-bottom: 0.4rem;
+  }
+  .year-head h3 { font-size: 1.5rem; font-weight: 700; }
+  .year-head .yc { color: var(--muted-fg); font-size: 0.9rem; font-weight: 600; }
+
+  /* 文章行 */
+  .post-row {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1.1rem 0.5rem; border-bottom: 1px solid rgba(222,216,207,0.6);
+    text-decoration: none; color: var(--foreground);
+    transition: all 0.25s ease; border-radius: 1rem;
+  }
+  .post-row:hover { background: rgba(255,255,255,0.55); padding-left: 1rem; padding-right: 1rem; }
+  .post-date { color: var(--muted-fg); font-size: 0.9rem; font-weight: 700; width: 3.4rem; flex-shrink: 0; }
+  .post-cat {
+    background: rgba(93,112,82,0.1); color: var(--primary);
+    border-radius: 9999px; padding: 0.2rem 0.7rem; font-size: 0.78rem; font-weight: 700;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .post-title { flex: 1; font-weight: 600; font-size: 1.05rem; transition: color 0.25s ease; }
+  .post-row:hover .post-title { color: var(--primary); }
+  .post-time { color: var(--muted-fg); font-size: 0.85rem; flex-shrink: 0; white-space: nowrap; }
+  .blog-empty { color: var(--muted-fg); padding: 2rem 0; }
+  @media (max-width: 640px) {
+    .post-time { display: none; }
+    .post-title { font-size: 0.98rem; }
+  }
+  .post-row { cursor: pointer; }
+
+  /* ===== 翻页（博客 / 项目 共用）===== */
+  .pager { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2.5rem; flex-wrap: wrap; }
+  .pager button {
+    min-width: 2.6rem; height: 2.6rem; padding: 0 0.6rem;
+    border: 1px solid var(--border); background: rgba(255,255,255,0.6);
+    color: var(--foreground); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.9rem;
+    border-radius: 9999px; cursor: pointer; transition: all 0.25s ease;
+  }
+  .pager button:hover:not(:disabled) { background: rgba(93,112,82,0.1); color: var(--primary); }
+  .pager button.active { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+  .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ===== 图文文章阅读页（全屏覆盖）===== */
+  .reader {
+    position: fixed; inset: 0; z-index: 100;
+    background: var(--background);
+    overflow-y: auto;
+    opacity: 0; visibility: hidden; transform: translateY(20px);
+    transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+  }
+  .reader.open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .reader-bar {
+    position: sticky; top: 0; z-index: 2;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgba(253,252,248,0.8); backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(222,216,207,0.5);
+  }
+  .reader-bar .back {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: var(--primary); font-weight: 700; cursor: pointer;
+    background: none; border: none; font-size: 0.95rem; font-family: inherit;
+  }
+  .reader-close {
+    width: 2.6rem; height: 2.6rem; border-radius: 9999px;
+    background: var(--muted); border: none; cursor: pointer;
+    display: grid; place-items: center; color: var(--foreground);
+    transition: all 0.25s ease;
+  }
+  .reader-close:hover { background: var(--primary); color: #fff; transform: rotate(90deg); }
+
+  .article { max-width: 44rem; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+  .article .a-meta { display: flex; gap: 0.7rem; align-items: center; margin-bottom: 1rem; }
+  .article .a-cat {
+    background: rgba(93,112,82,0.1); color: var(--primary);
+    border-radius: 9999px; padding: 0.25rem 0.8rem; font-size: 0.82rem; font-weight: 700;
+  }
+  .article .a-date { color: var(--muted-fg); font-size: 0.9rem; font-weight: 600; }
+  .article h1 { font-family: 'Fraunces', serif; font-size: 2.4rem; font-weight: 800; line-height: 1.2; margin-bottom: 1.8rem; }
+  @media (min-width: 768px) { .article h1 { font-size: 3rem; } }
+  .article .a-cover {
+    width: 100%; border-radius: 1.5rem; margin-bottom: 2rem;
+    border: 4px solid #fff; box-shadow: var(--shadow-float);
+  }
+  .article p { font-size: 1.12rem; line-height: 1.9; color: var(--foreground); margin-bottom: 1.5rem; }
+  .article h2 { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700; margin: 2.2rem 0 1rem; }
+  .article figure { margin: 2rem 0; }
+  .article figure img {
+    width: 100%; border-radius: 1.2rem;
+    border: 4px solid #fff; box-shadow: var(--shadow-soft);
+  }
+  .article figcaption { text-align: center; color: var(--muted-fg); font-size: 0.88rem; margin-top: 0.7rem; }
+
+  /* ===== 项目 ===== */
+  .project-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+  @media (min-width: 768px) { .project-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .project-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .project-card {
+    background: var(--card);
+    border: 1px solid rgba(222,216,207,0.5);
+    border-radius: 2rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.4s ease;
+    display: flex; flex-direction: column;
+  }
+  .project-card:hover { transform: translateY(-8px); box-shadow: 0 24px 48px -12px rgba(93,112,82,0.18); }
+
+  .project-thumb {
+    height: 3rem; position: relative; overflow: hidden;
+  }
+  /* 不同色调的占位封面 */
+  .thumb-1 { background: linear-gradient(135deg, #5D7052, #768a68); }
+  .thumb-2 { background: linear-gradient(135deg, #C18C5D, #d3a472); }
+  .thumb-3 { background: linear-gradient(135deg, #8a8470, #b3ab92); }
+
+  /* 待添加空卡片 */
+  .project-card--empty {
+    border: 2px dashed rgba(222,216,207,0.9);
+    background: transparent;
+    box-shadow: none;
+    align-items: center; justify-content: center;
+    min-height: 18rem; text-align: center; color: var(--muted-fg);
+    gap: 0.6rem;
+  }
+  .project-card--empty:hover { transform: translateY(-4px); box-shadow: none; border-color: rgba(93,112,82,0.4); }
+  .project-card--empty .plus {
+    width: 3rem; height: 3rem; border-radius: 9999px;
+    background: rgba(93,112,82,0.08); color: var(--primary);
+    display: grid; place-items: center; font-size: 1.6rem; font-weight: 300;
+  }
+  .project-card--empty span.t { font-weight: 700; font-size: 1rem; }
+
+  .project-body { padding: 1.5rem 1.6rem 1.7rem; display: flex; flex-direction: column; flex: 1; }
+  .project-body h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .project-body .desc { color: var(--muted-fg); font-size: 0.95rem; margin-bottom: 1.1rem; flex: 1; }
+  .project-body .pills { margin-bottom: 1.2rem; }
+  .project-link {
+    align-self: flex-start;
+    color: var(--primary); font-weight: 700; font-size: 0.95rem;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;
+    transition: gap 0.3s ease;
+  }
+  .project-link:hover { gap: 0.7rem; }
+  .project-link.disabled { color: var(--muted-fg); font-weight: 600; cursor: default; }
+
+  /* ===== 经历时间线 ===== */
+  .timeline { max-width: 46rem; position: relative; padding-left: 2.2rem; }
+  .timeline::before {
+    content: ""; position: absolute; left: 0.5rem; top: 0.6rem; bottom: 0.6rem;
+    width: 2px; background: repeating-linear-gradient(
+      to bottom, var(--border) 0 6px, transparent 6px 12px);
+  }
+  .tl-item { position: relative; padding-bottom: 2.8rem; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before {
+    content: ""; position: absolute; left: -2.2rem; top: 0.35rem;
+    width: 1.1rem; height: 1.1rem; border-radius: 60% 40% 40% 60% / 50%;
+    background: var(--primary); box-shadow: 0 0 0 4px rgba(93,112,82,0.12);
+  }
+  .tl-item:nth-child(even)::before { background: var(--secondary); box-shadow: 0 0 0 4px rgba(193,140,93,0.12); }
+  .tl-year {
+    display: inline-block; color: var(--secondary); font-weight: 800;
+    font-size: 0.9rem; letter-spacing: 0.03em; margin-bottom: 0.4rem;
+  }
+  .tl-item h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .tl-item .role { color: var(--primary); font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; }
+  .tl-item p { color: var(--muted-fg); font-size: 1rem; }
+
+  /* ===== 联系 ===== */
+  .contact-wrap { max-width: 64rem; margin: 0 auto; }
+  .contact-card {
+    position: relative; overflow: hidden;
+    background: var(--primary); color: var(--primary-fg);
+    border-radius: 3rem 3rem 3rem 5rem;
+    padding: 4rem 2rem; text-align: center;
+    box-shadow: var(--shadow-float);
+  }
+  .contact-card .c-blob {
+    position: absolute; width: 22rem; height: 22rem; filter: blur(60px);
+    background: rgba(193,140,93,0.35); top: -8rem; right: -6rem;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; pointer-events: none;
+  }
+  .contact-card h2 {
+    position: relative; font-size: 2.2rem; font-weight: 800; margin-bottom: 0.8rem;
+  }
+  @media (min-width: 768px) { .contact-card h2 { font-size: 2.8rem; } }
+  .contact-card p { position: relative; opacity: 0.9; font-size: 1.1rem; max-width: 34rem; margin: 0 auto 2.2rem; }
+  .contact-actions { position: relative; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+
+  /* 联系方式直接展示 */
+  .contact-info { position: relative; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+  .ci-item {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 9999px; padding: 0.7rem 1.4rem;
+    color: #fff;
+  }
+  .ci-item svg { opacity: 0.85; flex-shrink: 0; }
+  .ci-label { opacity: 0.8; font-weight: 600; font-size: 0.95rem; }
+  .ci-label::after { content: "："; }
+  .ci-value { font-weight: 700; font-size: 1rem; user-select: all; }
+  .btn-light {
+    background: #fff; color: var(--primary);
+    height: 3rem; padding: 0 2rem; font-size: 1rem;
+  }
+  .btn-light:hover { transform: scale(1.05); box-shadow: 0 8px 24px -6px rgba(0,0,0,0.2); }
+  .btn-ghost-light {
+    background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6);
+    height: 3rem; padding: 0 2rem; font-size: 1rem;
+  }
+  .btn-ghost-light:hover { transform: scale(1.05); background: rgba(255,255,255,0.12); }
+
+  /* ===== 页脚 ===== */
+  footer { padding: 3rem 0; text-align: center; color: var(--muted-fg); font-size: 0.9rem; }
+  footer .heart { color: var(--secondary); }
+</style>
+</head>
+<body>
+
+  <!-- ===== 悬浮磨砂玻璃导航 ===== -->
+  <div class="nav-outer">
+    <nav class="nav">
+      <a class="brand" href="#top" aria-label="返回顶部">
+        <span class="logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>
+        </span>
+      </a>
+      <div class="nav-links">
+        <a href="#about">关于我</a>
+        <a href="#blog">博客</a>
+        <a href="#projects">作品集</a>
+        <a href="#experience">经历</a>
+        <a href="#contact">联系</a>
+      </div>
+      <a href="#contact" class="btn btn-primary nav-cta">联系我</a>
+    </nav>
+  </div>
+
+  <!-- ===== 首屏 Hero ===== -->
+  <header class="hero" id="top">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="wrap">
+      <div class="hero-grid">
+        <!-- 左：文案 -->
+        <div>
+          <span class="eyebrow"><span class="dot"></span>AI 成长 · 持续进化中</span>
+          <h1>你好，我是<span class="accent">时礼</span></h1>
+          <p class="keyword">one person + AI = team</p>
+          <p class="lead">
+            一个相信「一个人借助 AI 就能成为一支团队」的实践者。
+            这里是我记录生活、分享想法和展示作品的小天地，感谢你的到来。
+          </p>
+          <div class="hero-actions">
+            <a href="#contact" class="btn btn-primary">联系我 →</a>
+            <a href="#projects" class="btn btn-outline">看看作品</a>
+          </div>
+        </div>
+
+        <!-- 右：水滴头像（把照片命名为 avatar.jpg 放进同一文件夹即可自动显示） -->
+        <div class="avatar-wrap">
+          <div class="avatar">
+            <span class="placeholder">礼</span>
+            <img src="avatar.jpg" alt="时礼的照片"
+                 onerror="this.style.display='none'" />
+          </div>
+        </div>
+      </div>
+
+      <p class="scroll-hint">向下滚动，了解更多 ↓</p>
+    </div>
+  </header>
+
+  <!-- ===== 关于我 ===== -->
+  <section class="section section--stone" id="about">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="section-tag"><span class="line"></span>关于我</span>
+        <h2>一个人，也能是一支团队</h2>
+      </div>
+
+      <div class="about-grid">
+        <!-- 左：自我介绍 -->
+        <div class="about-text">
+          <p>
+            我是时礼，一个把 AI 当作<strong>外脑与队友</strong>的实践者。
+            借助 AI，一个人也能完成过去需要一整支团队才能推进的事。
+          </p>
+          <p class="soft">
+            从一个模糊的想法，到能被点开、被使用的产品，我习惯自己跑通全程：
+            想清楚要解决什么问题、设计它该有的样子、再用 AI 把它快速做出来，
+            上线后根据真实反馈持续打磨。
+          </p>
+          <p class="soft">
+            比起单点技能，我更看重把一件事<strong>从 0 带到 1</strong> 的完整能力——
+            既能定义方向，也能动手落地。这个小站，就是我一边记录、一边实践的地方。
+          </p>
+        </div>
+
+        <!-- 右：四个角色卡片 -->
+        <div class="role-cards">
+          <div class="role-card">
+            <div class="ic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            </div>
+            <h3>定义问题</h3>
+            <p>找到想做的事，把模糊的想法变成需求。</p>
+          </div>
+          <div class="role-card">
+            <div class="ic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
+            </div>
+            <h3>设计体验</h3>
+            <p>把抽象需求转化为确切的产品，设计好产品形态。</p>
+          </div>
+          <div class="role-card">
+            <div class="ic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <h3>快速落地</h3>
+            <p>用 AI 快速落地为可交互的成品。</p>
+          </div>
+          <div class="role-card">
+            <div class="ic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>
+            </div>
+            <h3>持续调教</h3>
+            <p>根据反馈打磨产品，也调优模型表现。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 个人博客（文章列表）===== -->
+  <section class="section section--sand" id="blog">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="section-tag"><span class="line"></span>个人博客</span>
+        <h2>记录与分享</h2>
+        <p class="blog-sub">我写下的真实记录 —— 生活、AI 与成长。</p>
+      </div>
+
+      <!-- 搜索 + 分类 -->
+      <div class="blog-controls">
+        <div class="blog-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="blogSearch" type="text" placeholder="搜索文章标题…" />
+        </div>
+        <div class="blog-cats" id="blogCats">
+          <!-- 分类按钮由脚本生成 -->
+        </div>
+      </div>
+
+      <p class="blog-count" id="blogCount"></p>
+
+      <!-- 文章列表（按年份分组，由脚本生成）-->
+      <div id="blogList"></div>
+      <!-- 翻页 -->
+      <div class="pager" id="blogPager"></div>
+    </div>
+  </section>
+
+  <!-- ===== 图文文章阅读页（默认隐藏，点文章后弹出）===== -->
+  <div class="reader" id="reader">
+    <div class="reader-bar">
+      <button class="back" onclick="closeArticle()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回列表
+      </button>
+      <button class="reader-close" onclick="closeArticle()" aria-label="关闭">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <article class="article" id="articleBody"><!-- 正文由脚本填充 --></article>
+  </div>
+
+  <!-- ===== 博客数据与渲染逻辑 ===== -->
+  <script>
+    /* ★ 在这里添加 / 修改文章。每篇文章是一个 { } 块，字段说明：
+       date  日期，格式 "年.月.日"
+       cat   分类，必须是下面 categories 里的某一个
+       title 标题
+       min   预计阅读分钟数
+       cover 封面图文件名（放进同一文件夹，没有就写 ""）
+       content 正文，是一个数组，按顺序往里放内容块，支持三种：
+         · "一段文字"                      → 普通段落
+         · { h: "小标题" }                 → 文章里的小标题
+         · { img: "图片名.jpg", cap: "说明" } → 一张配图（cap 说明可不写）
+    */
+    const categories = ["生活随笔", "AI工具", "成长心理"];
+
+    const posts = [
+      {
+        date: "2026.06.18", cat: "AI工具", title: "用 AI 把一个想法变成可交付的产品", min: 9,
+        cover: "",
+        content: [
+          "这是一篇示例文章，用来演示「图文模式」长什么样。你可以把这里的文字换成你自己的内容。",
+          { h: "为什么从一个想法开始" },
+          "很多事情的起点，只是一个模糊的念头。借助 AI，我可以在当天就把它跑通成一个能用的雏形，而不是停留在脑子里。",
+          { img: "avatar.jpg", cap: "把图片文件名写进 content 就能像这样插入配图" },
+          "图片和文字可以交替排列，想放几张图、几段话都可以，顺序由你决定。",
+          { h: "我的小结" },
+          "记录下来，是为了让每一次尝试都能被复用。"
+        ]
+      },
+      { date: "2026.06.16", cat: "AI工具",   title: "一个人 + AI：我的日常工作流拆解", min: 11,
+        cover: "", content: ["这篇文章的正文还没写，等你来补充。把 content 里的文字换成你的内容即可。"] },
+      { date: "2026.06.15", cat: "AI工具",   title: "把 AI 接入创作流程，效率起飞", min: 9,
+        cover: "", content: ["正文待补充。"] },
+      { date: "2026.05.28", cat: "成长心理", title: "从想法到成品，我踩过的那些坑", min: 8,
+        cover: "", content: ["正文待补充。"] },
+      { date: "2026.05.12", cat: "生活随笔", title: "把日子过成自己喜欢的样子", min: 6,
+        cover: "", content: ["正文待补充。"] },
+      { date: "2025.12.20", cat: "成长心理", title: "为什么我开始记录自己的每一次尝试", min: 7,
+        cover: "", content: ["正文待补充。"] },
+      { date: "2025.11.03", cat: "生活随笔", title: "慢一点，也是一种生产力", min: 5,
+        cover: "", content: ["正文待补充。"] }
+    ];
+    posts.forEach((p, i) => p.id = i); // 给每篇文章一个编号，供打开使用
+
+    /* ---- 以下是渲染逻辑，一般不用改 ---- */
+    const BLOG_PER_PAGE = 6;   // ★ 博客每页显示几篇，想改数量改这里
+    let activeCat = "全部";
+    let keyword = "";
+    let blogPage = 1;
+
+    const catsEl  = document.getElementById("blogCats");
+    const listEl  = document.getElementById("blogList");
+    const countEl = document.getElementById("blogCount");
+    const searchEl= document.getElementById("blogSearch");
+    const pagerEl = document.getElementById("blogPager");
+
+    // 生成分类按钮
+    ["全部", ...categories].forEach(c => {
+      const b = document.createElement("button");
+      b.className = "cat-btn" + (c === activeCat ? " active" : "");
+      b.textContent = c;
+      b.onclick = () => {
+        activeCat = c;
+        blogPage = 1; // 切换分类回到第一页
+        document.querySelectorAll(".cat-btn").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        render();
+      };
+      catsEl.appendChild(b);
+    });
+
+    searchEl.addEventListener("input", e => { keyword = e.target.value.trim(); blogPage = 1; render(); });
+
+    function render() {
+      // 筛选
+      const filtered = posts.filter(p =>
+        (activeCat === "全部" || p.cat === activeCat) &&
+        p.title.toLowerCase().includes(keyword.toLowerCase())
+      );
+      // 按日期倒序
+      filtered.sort((a, b) => b.date.localeCompare(a.date));
+
+      countEl.innerHTML = `共 <b>${posts.length}</b> 篇 · 当前显示 <b>${filtered.length}</b> 篇`;
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<p class="blog-empty">没有找到相关文章，换个关键词试试 🌱</p>`;
+        pagerEl.innerHTML = "";
+        return;
+      }
+
+      // 翻页：截取当前页要显示的文章
+      const totalPages = Math.ceil(filtered.length / BLOG_PER_PAGE);
+      if (blogPage > totalPages) blogPage = totalPages;
+      const pageItems = filtered.slice((blogPage - 1) * BLOG_PER_PAGE, blogPage * BLOG_PER_PAGE);
+
+      // 按年份分组（只对当前页的文章分组）
+      const groups = {};
+      pageItems.forEach(p => {
+        const y = p.date.slice(0, 4);
+        (groups[y] = groups[y] || []).push(p);
+      });
+
+      listEl.innerHTML = Object.keys(groups).sort((a, b) => b - a).map(year => {
+        const rows = groups[year].map(p => {
+          const md = p.date.slice(5); // 月.日
+          return `<div class="post-row" onclick="openArticle(${p.id})">
+            <span class="post-date">${md}</span>
+            <span class="post-cat">${p.cat}</span>
+            <span class="post-title">${p.title}</span>
+            <span class="post-time">预计阅读 ${p.min} 分钟</span>
+          </div>`;
+        }).join("");
+        return `<div class="year-group">
+          <div class="year-head"><h3>${year} 年</h3><span class="yc">${groups[year].length} 篇</span></div>
+          ${rows}
+        </div>`;
+      }).join("");
+
+      renderPager(totalPages);
+    }
+
+    // 渲染翻页按钮
+    function renderPager(totalPages) {
+      if (totalPages <= 1) { pagerEl.innerHTML = ""; return; }
+      let html = `<button onclick="goBlogPage(${blogPage - 1})" ${blogPage === 1 ? "disabled" : ""}>‹</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="${i === blogPage ? "active" : ""}" onclick="goBlogPage(${i})">${i}</button>`;
+      }
+      html += `<button onclick="goBlogPage(${blogPage + 1})" ${blogPage === totalPages ? "disabled" : ""}>›</button>`;
+      pagerEl.innerHTML = html;
+    }
+
+    function goBlogPage(n) {
+      blogPage = n;
+      render();
+      document.getElementById("blog").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    render();
+
+    /* ---- 打开 / 关闭图文文章页 ---- */
+    const reader = document.getElementById("reader");
+    const articleBody = document.getElementById("articleBody");
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    function openArticle(id) {
+      const p = posts.find(x => x.id === id);
+      if (!p) return;
+
+      // 头部：分类 + 日期 + 标题 +（可选）封面
+      let html = `
+        <div class="a-meta">
+          <span class="a-cat">${escapeHtml(p.cat)}</span>
+          <span class="a-date">${escapeHtml(p.date)}</span>
+        </div>
+        <h1>${escapeHtml(p.title)}</h1>`;
+      if (p.cover) html += `<img class="a-cover" src="${p.cover}" alt="${escapeHtml(p.title)}" onerror="this.style.display='none'"/>`;
+
+      // 正文内容块
+      (p.content || []).forEach(block => {
+        if (typeof block === "string") {
+          html += `<p>${escapeHtml(block)}</p>`;
+        } else if (block.h) {
+          html += `<h2>${escapeHtml(block.h)}</h2>`;
+        } else if (block.img) {
+          html += `<figure><img src="${block.img}" alt="${escapeHtml(block.cap || "")}" onerror="this.parentElement.style.display='none'"/>`;
+          if (block.cap) html += `<figcaption>${escapeHtml(block.cap)}</figcaption>`;
+          html += `</figure>`;
+        }
+      });
+
+      articleBody.innerHTML = html;
+      reader.scrollTop = 0;
+      reader.classList.add("open");
+      document.body.style.overflow = "hidden"; // 锁住背景滚动
+    }
+
+    function closeArticle() {
+      reader.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    // 按 Esc 也能关闭
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") closeArticle();
+    });
+  </script>
+
+  <!-- ===== 项目 ===== -->
+  <section class="section" id="projects">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="section-tag"><span class="line"></span>项目</span>
+        <h2>作品集</h2>
+      </div>
+
+      <!-- 项目卡片由脚本生成 -->
+      <div class="project-grid" id="projectGrid"></div>
+      <!-- 翻页 -->
+      <div class="pager" id="projectPager"></div>
+    </div>
+  </section>
+
+  <!-- ===== 项目数据与渲染逻辑 ===== -->
+  <script>
+    /* ★ 在这里添加 / 修改项目：复制一个 { } 块，改字段即可。
+       title 项目名；desc 一句简介；tags 标签（方括号里用逗号分隔）；
+       link 项目链接（暂时填 "#"）。 */
+    const projects = [
+      { title: "个人网站", desc: "从零搭建个人网站，用 AI 把想法落地为可交互网页。", tags: ["AI 编程", "网页设计"], link: "#" },
+      { title: "小游戏", desc: "用 AI 做的一款回合制卡牌魔塔游戏，从玩法设计到上线一手包办，点击即可游玩。", tags: ["玩法设计", "AI 编程"], link: "https://1250003213sl-dot.github.io/test-game--Magic-card/" },
+      { title: "个人品牌设计 skill", desc: "基于个人 IP 生成内容设计的 Design Skill——从配色、字体、组件到排版规范，让 AI 直接输出符合我审美的 HTML。", tags: ["设计系统", "Design Skill"], link: "#" }
+    ];
+
+    /* ---- 以下是渲染逻辑，一般不用改 ---- */
+    const PROJ_PER_PAGE = 6;   // ★ 项目每页显示几个，想改改这里
+    let projPage = 1;
+    const projGrid  = document.getElementById("projectGrid");
+    const projPager = document.getElementById("projectPager");
+
+    function renderProjects() {
+      const totalPages = Math.max(1, Math.ceil(projects.length / PROJ_PER_PAGE));
+      if (projPage > totalPages) projPage = totalPages;
+      const pageItems = projects.slice((projPage - 1) * PROJ_PER_PAGE, projPage * PROJ_PER_PAGE);
+
+      let html = pageItems.map((p, i) => {
+        const thumb = "thumb-" + ((i % 3) + 1); // 三种封面色循环
+        const tags = (p.tags || []).map(t => `<span class="pill">${t}</span>`).join("");
+        // 有真实链接 → 显示可点的「查看详情」并在新标签页打开；没有链接 → 显示淡色「敬请期待」
+        const hasLink = p.link && p.link !== "#";
+        const action = hasLink
+          ? `<a class="project-link" href="${p.link}" target="_blank" rel="noopener">查看详情 →</a>`
+          : `<span class="project-link disabled">敬请期待</span>`;
+        return `<article class="project-card">
+          <div class="project-thumb ${thumb}"></div>
+          <div class="project-body">
+            <h3>${p.title}</h3>
+            <p class="desc">${p.desc}</p>
+            <div class="pills">${tags}</div>
+            ${action}
+          </div>
+        </article>`;
+      }).join("");
+
+      // 只在最后一页末尾显示「待添加」卡片
+      if (projPage === totalPages) {
+        html += `<article class="project-card project-card--empty">
+          <div class="plus">+</div>
+          <span class="t">待添加</span>
+          <p class="desc" style="margin:0;">更多作品正在路上</p>
+        </article>`;
+      }
+
+      projGrid.innerHTML = html;
+
+      // 翻页按钮
+      if (totalPages <= 1) { projPager.innerHTML = ""; return; }
+      let ph = `<button onclick="goProjPage(${projPage - 1})" ${projPage === 1 ? "disabled" : ""}>‹</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        ph += `<button class="${i === projPage ? "active" : ""}" onclick="goProjPage(${i})">${i}</button>`;
+      }
+      ph += `<button onclick="goProjPage(${projPage + 1})" ${projPage === totalPages ? "disabled" : ""}>›</button>`;
+      projPager.innerHTML = ph;
+    }
+
+    function goProjPage(n) {
+      projPage = n;
+      renderProjects();
+      document.getElementById("projects").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    renderProjects();
+  </script>
+
+  <!-- ===== 经历 ===== -->
+  <section class="section section--stone" id="experience">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="section-tag"><span class="line"></span>经历</span>
+        <h2>一路走来</h2>
+      </div>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <span class="tl-year">2022 — 2025</span>
+          <h3>工作阶段</h3>
+          <p class="role">在职探索 · AI 实践</p>
+          <p>从实际业务出发，把 AI 用进真实工作场景里，独立完成从想法到落地的全过程，逐步沉淀出「一个人 + AI = 一支团队」的工作方式。</p>
+        </div>
+        <div class="tl-item">
+          <span class="tl-year">2018 — 2022</span>
+          <h3>大学阶段</h3>
+          <p class="role">本科学习</p>
+          <p>系统打下基础，培养独立思考与动手能力，开始接触并尝试用工具把自己的想法变成具体的作品。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 联系 ===== -->
+  <section class="section" id="contact">
+    <div class="wrap">
+      <div class="contact-wrap">
+        <div class="contact-card">
+          <span class="c-blob"></span>
+          <h2>很高兴认识你</h2>
+          <p>如果你也对 AI、产品或有趣的想法感兴趣，欢迎随时找我聊聊。</p>
+          <div class="contact-info">
+            <div class="ci-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+              <span class="ci-label">邮箱</span>
+              <span class="ci-value">1250003213@qq.com</span>
+            </div>
+            <div class="ci-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.8 9.8 0 0 1-4-.84L3 20l1.05-3.15A7.5 7.5 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z"/></svg>
+              <span class="ci-label">微信号</span>
+              <span class="ci-value">lynnroot</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 页脚 ===== -->
+  <footer>
+    <p>与 AI 同行 · © 2026 时礼</p>
+  </footer>
+
+</body>
+</html>
